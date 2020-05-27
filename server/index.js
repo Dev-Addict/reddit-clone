@@ -4,6 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const next = require('next');
 
+const errorController = require('./controllers/errorController');
+
 dotenv.config({
     path: path.join(__dirname, './config.env')
 });
@@ -30,6 +32,8 @@ app.prepare()
         server.get('*', (req, res) => {
             return handle(req, res);
         });
+
+        server.use(errorController);
 
         const Port = process.env.PORT || 3000;
 
