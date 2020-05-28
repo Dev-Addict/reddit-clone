@@ -43,12 +43,24 @@ const signToken = ({_id}) => {
         {
             id: _id
         },
-        process.env.JSON_WEB_TOKEN_SECRET
+        process.env.JSON_WEB_TOKEN_SECRET,
+        {
+            expiresIn: process.env.JSON_WEB_TOKEN_TIME
+        }
     );
 };
 
 const sendToken = (user, statusCode, res) => {
     const token = signToken(user);
+    const cookieOptions = {
+        expires: new Date(
+            Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+        ),
+        httpOnly: true
+    };
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+    res.cookie('jwt', token, cookieOptions);
 
     user.password = undefined;
 
@@ -64,6 +76,14 @@ const sendToken = (user, statusCode, res) => {
         }
     });
 };
+
+exports.logOut = catchRequest((req, res) => {
+    res.cookie('jwt', '', {
+        expires: new Date(),
+        httpOnly: true
+    });
+    res.status(200).json({status:'success'})
+});
 
 exports.signIn = catchRequest(async (req, res) => {
     const {username, password} = req.body;
