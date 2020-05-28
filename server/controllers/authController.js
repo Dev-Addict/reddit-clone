@@ -82,7 +82,7 @@ const sendToken = (user, statusCode, res) => {
 
 exports.logOut = (req, res) => {
     res.clearCookie('jwt');
-    res.status(200).json({status:'success'})
+    res.status(200).json({status: 'success'})
 };
 
 exports.signIn = catchRequest(async (req, res) => {
@@ -123,5 +123,41 @@ exports.signUp = catchRequest(
         });
 
         sendToken(user, 201, res);
+    }
+);
+
+exports.forgotPassword = catchRequest(
+    async (req, res) => {
+        let user;
+        if (req.body.email) {
+            user = await User.findOne({email: req.body.email.toLowerCase()});
+        } else if (req.body.username) {
+            user = await User.findOne({usernameSlug: req.body.username.toLowerCase()});
+        }
+        if (!user) {
+            throw new AppError('We can not find the user.', 404);
+        }
+        const resetToken = user.createResetPasswordToken();
+        await user.save({
+            validateBeforeSave: false
+        });
+        const resetURL =
+            `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+
+        const emailArray = user.email.split('@');
+
+        const codedEmail =
+            `${
+                emailArray[0].substr(0, 2)
+            }${
+                emailArray[0].substr(2, emailArray[0].length - 4).split('').map(char => '*').join('')
+            }${
+                emailArray[0].substr(emailArray[0].length - 2)}@${emailArray[1]
+            }`;
+
+        res.status(200).json({
+            status: 'success',
+            message: `We sent the email to user's email(${codedEmail})`
+        });
     }
 );
