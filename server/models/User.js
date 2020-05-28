@@ -135,6 +135,15 @@ userSchema.methods.correctPassword = async function(
     return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+userSchema.methods.isPasswordChanged = function(JWTTimeStamp) {
+    if (this.passwordChangedAt) {
+        if (this.passwordChangedAt.getTime() / 1000 > JWTTimeStamp) {
+            return true;
+        }
+    }
+    return false;
+};
+
 userSchema.pre('save', async function(next) {
     if (!this.isModified('password')) {
         return next();
@@ -154,6 +163,15 @@ userSchema.pre('save', function (next) {
     next();
 });
 
+userSchema.pre('save', function(next) {
+    if (this.isModified('password') && !this.isNew) {
+        this.passwordChangedAt = Date.now() - 1000;
+        this.passwordResetToken = undefined;
+        this.passwordResetExpires = undefined;
+    }
+    next();
+});
+
 userSchema.pre('findOneAndUpdate', function(next) {
     if (this._update.username) {
         this._update.usernameSlug = this._update.username.toLowerCase();
@@ -168,7 +186,9 @@ userSchema.pre('findOneAndUpdate', function(next) {
 });
 
 userSchema.pre('findOneAndUpdate', async function(next) {
-    this._update.password = await bcrypt.hash(this._update.password, 12);
+    if (this._update.password) {
+        this._update.password = await bcrypt.hash(this._update.password, 12);
+    }
     next();
 });
 

@@ -8,10 +8,10 @@ const AppError = require('../utils/AppError');
 
 exports.protect = catchRequest(async (req, res, next) => {
     let token;
-    if (req.headers.authorization) {
-        token = req.headers.authorization;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies.jwt) {
-        token = req.cookies.jwt
+        token = req.cookies.jwt;
     }
     if (!token) {
         throw new AppError('You are not logged in.', 401);
@@ -20,7 +20,13 @@ exports.protect = catchRequest(async (req, res, next) => {
     const user = await User.findById(decodedToken.id);
     if (!user) {
         throw new AppError(
-            'The user belong to the token that no longer exists',
+            'The user belong to the token that no longer exists.',
+            401
+        );
+    }
+    if (user.isPasswordChanged(decodedToken.iat)) {
+        throw new AppError(
+            'The user has changed the password pls create new token.',
             401
         );
     }
@@ -158,7 +164,8 @@ exports.forgotPassword = catchRequest(
 
         res.status(200).json({
             status: 'success',
-            message: `We sent the email to user's email(${codedEmail})`
+            message: `We sent the email to user's email(${codedEmail})`,
+            resetURL
         });
     }
 );
