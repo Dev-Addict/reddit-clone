@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const {promisify} = require('util');
 const jsonWebToken = require('jsonwebtoken');
 
@@ -159,5 +160,26 @@ exports.forgotPassword = catchRequest(
             status: 'success',
             message: `We sent the email to user's email(${codedEmail})`
         });
+    }
+);
+
+exports.resetPassword = catchRequest(
+    async (req, res) => {
+        const hashedToken =
+            crypto
+                .createHash('sha256')
+                .update(req.params.resetToken)
+                .digest('hex');
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpires: { $gt: Date.now() }
+        });
+        if (!user) {
+            throw new AppError('Token is invalid or expired.', 400);
+        }
+        user.password = req.body.password;
+        await user.save();
+
+        sendToken(user, 200, res);
     }
 );
