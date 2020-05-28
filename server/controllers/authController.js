@@ -26,3 +26,14 @@ exports.protect = catchRequest(async (req, res, next) => {
     req.user = user;
     next();
 });
+
+exports.restrictTo = (...rotes) => {
+    return catchRequest(
+        async (req, res, next) => {
+            if (rotes.includes(req.user.rote)) {
+                return next();
+            }
+            throw new AppError('You don\'t have permission to do that', 403);
+        }
+    );
+};
