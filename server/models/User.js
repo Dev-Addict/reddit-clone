@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -106,8 +107,30 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+userSchema.methods.correctPassword = async function(
+    candidatePassword,
+    userPassword
+) {
+    return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+});
+
 userSchema.pre('save', function (next) {
     this.usernameSlug = (this.username || '').toLowerCase();
+    this.isEmailValidated = false;
+    if (this.validateEmail) {
+        this.isEmailValidated = true;
+    }
+    if (!this.isEmailValidated) {
+        this.TFA = false;
+    }
     next();
 });
 
@@ -115,6 +138,19 @@ userSchema.pre('findOneAndUpdate', function(next) {
     if (this._update.username) {
         this._update.usernameSlug = this._update.username.toLowerCase();
     }
+    this._update.isEmailValidated = false;
+    if (this.validateEmail) {
+        this._update.isEmailValidated = true;
+    }
+    if (!this._update.isEmailValidated) {
+        this._update.TFA = false;
+    }
+    next()
+});
+
+userSchema.pre('findOneAndUpdate', async function(next) {
+    this._update.password = await bcrypt.hash(this._update.password, 12);
+    next();
 });
 
 const User = mongoose.model('user', userSchema);
