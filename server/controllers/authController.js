@@ -32,6 +32,9 @@ exports.restrictTo = (...rotes) => {
         async (req, res, next) => {
             if (rotes.includes(req.user.rote)) {
                 return next();
+            } else if (rotes.includes('selfUser')) {
+                req.password = undefined;
+                return next();
             }
             throw new AppError('You don\'t have permission to do that', 403);
         }
@@ -77,13 +80,10 @@ const sendToken = (user, statusCode, res) => {
     });
 };
 
-exports.logOut = catchRequest((req, res) => {
-    res.cookie('jwt', '', {
-        expires: new Date(),
-        httpOnly: true
-    });
+exports.logOut = (req, res) => {
+    res.clearCookie('jwt');
     res.status(200).json({status:'success'})
-});
+};
 
 exports.signIn = catchRequest(async (req, res) => {
     const {username, password} = req.body;

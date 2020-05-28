@@ -5,9 +5,9 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.route('/signin').post(authController.signIn);
-router.route('/checktoken').post(authController.protect, authController.isSignedIn);
-router.route('/logout').get(authController.logOut);
+router.route('/auth/checktoken').post(authController.protect, authController.isSignedIn);
+router.route('/auth/logout').get(authController.logOut);
+router.route('/auth/signin').post(authController.signIn);
 
 router.route('/')
     .get(userController.getUsers)
