@@ -173,7 +173,7 @@ userSchema.pre('save', function(next) {
 });
 
 userSchema.pre('findOneAndUpdate', function(next) {
-    if (this._update.username) {
+    if (this._update && this._update.username) {
         this._update.usernameSlug = this._update.username.toLowerCase();
     }
 

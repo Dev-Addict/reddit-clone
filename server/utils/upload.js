@@ -20,4 +20,4 @@ const upload = multer({
     fileFilter: multerFilter
 });
 
-export default upload;
+module.exports = upload;
