@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -9,7 +10,8 @@ const userSchema = new mongoose.Schema({
             validator: value => /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(value),
             message: ({value}) => `${value} is not a valid email.`
         },
-        lowercase: true
+        lowercase: true,
+        unique: true
     },
     username: {
         type: String,
@@ -114,6 +116,17 @@ const userSchema = new mongoose.Schema({
         default: 'user'
     }
 });
+
+userSchema.methods.createResetPasswordToken = function() {
+    const resetToken = crypto.randomBytes(64).toString('hex');
+    this.passwordResetToken =
+        crypto
+            .createHash('sha256')
+            .update(resetToken)
+            .digest('hex');
+    this.passwordResetExpires = Date.now() + 600000;
+    return resetToken;
+};
 
 userSchema.methods.correctPassword = async function(
     candidatePassword,

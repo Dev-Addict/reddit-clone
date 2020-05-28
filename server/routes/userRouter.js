@@ -8,6 +8,7 @@ const router = express.Router();
 router.route('/auth/checktoken').post(authController.protect, authController.isSignedIn);
 router.route('/auth/logout').get(authController.logOut);
 router.route('/auth/signin').post(authController.signIn);
+router.route('/auth/signup').post(authController.signUp);
 
 router.route('/')
     .get(userController.getUsers)
