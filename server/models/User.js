@@ -104,6 +104,14 @@ const userSchema = new mongoose.Schema({
     emailNotifications: {
         type: Boolean,
         default: true
+    },
+    rote: {
+        type: String,
+        enum: {
+            values: ['admin', 'user'],
+            message: 'A User Must Have rote Value Set To admin Or User.'
+        },
+        default: 'user'
     }
 });
 
@@ -124,13 +132,12 @@ userSchema.pre('save', async function(next) {
 
 userSchema.pre('save', function (next) {
     this.usernameSlug = (this.username || '').toLowerCase();
-    this.isEmailValidated = false;
-    if (this.validateEmail) {
-        this.isEmailValidated = true;
-    }
+
+    this.isEmailValidated = this.validateEmail;
     if (!this.isEmailValidated) {
         this.TFA = false;
     }
+    this.rote = 'user';
     next();
 });
 
@@ -138,13 +145,12 @@ userSchema.pre('findOneAndUpdate', function(next) {
     if (this._update.username) {
         this._update.usernameSlug = this._update.username.toLowerCase();
     }
-    this._update.isEmailValidated = false;
-    if (this.validateEmail) {
-        this._update.isEmailValidated = true;
-    }
+
+    this._update.isEmailValidated = this._update.validateEmail;
     if (!this._update.isEmailValidated) {
         this._update.TFA = false;
     }
+    this._update.rote = 'user';
     next()
 });
 
