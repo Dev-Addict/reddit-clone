@@ -6,6 +6,7 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router.route('/signin').post(authController.signIn);
+router.route('/checktoken').post(authController.protect, authController.isSignedIn);
 
 router.route('/')
     .get(userController.getUsers)
