@@ -8,10 +8,10 @@ const router = express.Router();
 
 router.route('/')
     .get(postController.getPosts)
-    .post(authController.protect, postController.createPost);
+    .post(authController.protect, postController.setAuthor, postController.createPost);
 router.route('/:id')
     .get(postController.getPost)
-    .patch(authController.protect, authController.restrictTo('admin'), postController.updatePost)
-    .delete(authController.protect, authController.restrictTo('admin'), postController.deletePost);
+    .patch(authController.protect, authController.restrictTo('admin', 'selfAuthor'), postController.setAuthor, postController.updatePost)
+    .delete(authController.protect, authController.restrictTo('admin', 'selfAuthor'), postController.deletePost);
 
 module.exports = router;
