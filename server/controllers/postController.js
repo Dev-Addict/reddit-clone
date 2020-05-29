@@ -1,7 +1,7 @@
 const factory = require('./handlerFactory');
 const Post = require('../models/Post');
 
-exports.getCommunities = factory.getAll(Post);
+exports.getPosts = factory.getAll(Post);
 
 exports.createPost = factory.createOne(Post);
 
