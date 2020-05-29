@@ -9,7 +9,7 @@ class Email {
         this.from = `reddit <${process.env.EMAIL_FROM}>`;
     }
 
-    createTransport() {
+    createTransport = () => {
         return nodeMailer.createTransport({
             service: 'gmail',
             auth: {
@@ -17,21 +17,28 @@ class Email {
                 pass: process.env.EMAIL_FORM_PASSWORD
             }
         })
-    }
+    };
 
-    async send(template, subject) {
-        const htmlTemplate = template;
+    send = async (template, subject) => {
 
         const mailOptions = {
             from: this.from,
             to: this.to,
             subject,
-            html: htmlTemplate,
-            text: htmlToText.fromString(htmlTemplate)
+            html: template,
+            text: htmlToText.fromString(template)
         };
 
         await this.createTransport().sendMail(mailOptions);
-    }
+    };
+
+    sendWelcome = async () => {
+        await this.send(`
+            <div>
+                <h1>Welcome to reddit family</h1>
+            </div>
+        `);
+    };
 }
 
 module.exports = Email;
