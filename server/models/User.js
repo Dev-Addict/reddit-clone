@@ -65,7 +65,10 @@ const userSchema = new mongoose.Schema({
         select: false
     },
     passwordChangedAt: Date,
-    passwordResetToken: String,
+    passwordResetToken: {
+        type: String,
+        select: false
+    },
     passwordResetExpires: Date,
     showInSearch: {
         type: Boolean,
@@ -75,7 +78,7 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    isEmailValidated: {
+    isEmailVerified: {
         type: Boolean,
         default: false
     },
@@ -114,7 +117,12 @@ const userSchema = new mongoose.Schema({
             message: 'A User Must Have rote Value Set To admin Or User.'
         },
         default: 'user'
-    }
+    },
+    verifyEmailToken: {
+        type: String,
+        select: false
+    },
+    verifyEmailExpires: Date
 });
 
 userSchema.methods.createResetPasswordToken = function() {
@@ -124,8 +132,19 @@ userSchema.methods.createResetPasswordToken = function() {
             .createHash('sha256')
             .update(resetToken)
             .digest('hex');
-    this.passwordResetExpires = Date.now() + 600000;
+    this.VerifyEmailExpires = Date.now() + 600000;
     return resetToken;
+};
+
+userSchema.methods.createVerifyEmailToken = function() {
+    const verifyToken = crypto.randomBytes(64).toString('hex');
+    this.verifyEmailToken =
+        crypto
+            .createHash('sha256')
+            .update(verifyToken)
+            .digest('hex');
+    this.passwordResetExpires = Date.now() + 600000;
+    return verifyToken;
 };
 
 userSchema.methods.correctPassword = async function(
@@ -166,6 +185,14 @@ userSchema.pre('save', function(next) {
         this.passwordChangedAt = Date.now() - 1000;
         this.passwordResetToken = undefined;
         this.passwordResetExpires = undefined;
+    }
+    next();
+});
+
+userSchema.pre('save', function (next) {
+    if (this.isModified('isEmailVerified') && !this.isNew) {
+        this.verifyEmailToken = undefined;
+        this.VerifyEmailExpires = undefined;
     }
     next();
 });
