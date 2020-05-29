@@ -3,6 +3,7 @@ const htmlToText = require('html-to-text');
 
 const WelcomeEmail = require('../templates/email/WelcomeEmail');
 const ResetPasswordEmail = require('../templates/email/ResetPasswordEmail');
+const VerifyEmail = require('../templates/email/VerifyEmail');
 
 class Email {
     constructor(user, url) {
@@ -47,6 +48,13 @@ class Email {
             'Reddit Reset Password Token'
         );
     };
+
+    sendVerifyEmailToken = async () => {
+        await this.send(
+            VerifyEmail(this.url),
+            'Reddit Verify Email'
+        );
+    }
 }
 
 module.exports = Email;

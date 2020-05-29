@@ -20,6 +20,7 @@ exports.deleteOne = Model =>
 exports.updateOne = Model =>
     catchRequest(
         async (req, res) => {
+            req.body.isEmailValidated = undefined;
             const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
                 new: true,
                 runValidators: true

@@ -15,7 +15,16 @@ router.route('/resetPassword/:resetToken').patch(authController.resetPassword);
 
 router.route('/')
     .get(userController.getUsers)
-    .post(authController.protect, authController.restrictTo('admin'), userController.createUser);
+    .post(authController.protect, authController.restrictTo('admin'), upload.fields([
+        {
+            name: 'avatarImage',
+            maxCount: 1
+        },
+        {
+            name: 'bannerImage',
+            maxCount: 1
+        }
+    ]), userController.saveUserImages, userController.createUser);
 router.route('/:id')
     .get(userController.getUser)
     .patch(authController.protect, authController.restrictTo('admin', 'selfUser'), upload.fields([

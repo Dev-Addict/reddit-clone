@@ -154,8 +154,6 @@ userSchema.pre('save', async function(next) {
 
 userSchema.pre('save', function (next) {
     this.usernameSlug = (this.username || '').toLowerCase();
-
-    this.isEmailValidated = this.validateEmail;
     if (!this.isEmailValidated) {
         this.TFA = false;
     }
