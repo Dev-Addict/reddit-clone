@@ -1,5 +1,8 @@
 const nodeMailer = require('nodemailer');
 const htmlToText = require('html-to-text');
+const ReactDOMServer = require('react-dom/server');
+
+const WelcomeEmail = require('../templates/email/WelcomeEmail');
 
 class Email {
     constructor(user, url) {
@@ -33,11 +36,7 @@ class Email {
     };
 
     sendWelcome = async () => {
-        await this.send(`
-            <div>
-                <h1>Welcome to reddit family</h1>
-            </div>
-        `);
+        await this.send(ReactDOMServer.renderToStaticMarkup(<WelcomeEmail url={this.url}/>));
     };
 }
 
