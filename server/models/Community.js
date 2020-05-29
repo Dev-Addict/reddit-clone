@@ -17,11 +17,16 @@ const communitySchema = new mongoose.Schema({
     parent: {
         type: mongoose.Schema.ObjectId,
         ref: 'Community'
+    },
+    image: {
+        type: String,
+        default: 'default.jpg'
     }
 });
 
 communitySchema.pre('save', function (next) {
-    this.slug = name.toLowerCase().replace(/ /g, "_");
+    this.slug = this.name.toLowerCase().replace(/ /g, "_");
+    next();
 });
 
 const Community = mongoose.model('Community', communitySchema);

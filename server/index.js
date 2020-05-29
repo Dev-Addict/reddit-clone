@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const next = require('next');
 
 const userRouter = require('./routes/userRouter');
+const communityRouter = require('./routes/communityRouter');
 const errorController = require('./controllers/errorController');
 
 dotenv.config({
@@ -37,6 +38,8 @@ app.prepare()
         });
 
         server.use('/api/v1/users', userRouter);
+
+        server.use('/api/v1/communities', communityRouter);
 
         server.get('*', (req, res) => {
             return handle(req, res);
