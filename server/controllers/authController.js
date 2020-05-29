@@ -5,6 +5,7 @@ const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/User');
 const catchRequest = require('../utils/catchRequest');
 const AppError = require('../utils/AppError');
+const Email = require('../utils/Email');
 
 exports.protect = catchRequest(async (req, res, next) => {
     let token;
@@ -128,6 +129,10 @@ exports.signUp = catchRequest(
             email: req.body.email,
             password: req.body.password
         });
+
+        const email = new Email(user, 'http://127.0.0.1:3000');
+
+        await email.sendWelcome();
 
         sendToken(user, 201, res);
     }
