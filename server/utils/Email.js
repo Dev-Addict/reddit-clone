@@ -2,6 +2,7 @@ const nodeMailer = require('nodemailer');
 const htmlToText = require('html-to-text');
 
 const WelcomeEmail = require('../templates/email/WelcomeEmail');
+const ResetPasswordEmail = require('../templates/email/ResetPasswordEmail');
 
 class Email {
     constructor(user, url) {
@@ -37,6 +38,13 @@ class Email {
     sendWelcome = async () => {
         await this.send(WelcomeEmail(this.url),
             'Welcome To Reddit'
+        );
+    };
+
+    sendResetPasswordToken = async () => {
+        await this.send(
+            ResetPasswordEmail(this.url),
+            'Reddit Reset Password Token'
         );
     };
 }

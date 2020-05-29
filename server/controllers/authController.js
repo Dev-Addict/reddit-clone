@@ -167,10 +167,13 @@ exports.forgotPassword = catchRequest(
                 emailArray[0].substr(emailArray[0].length - 2)}@${emailArray[1]
             }`;
 
+        const email = new Email(user, resetURL);
+
+        await email.sendResetPasswordToken();
+
         res.status(200).json({
             status: 'success',
-            message: `We sent the email to user's email(${codedEmail})`,
-            resetURL
+            message: `We sent the email to user's email(${codedEmail})`
         });
     }
 );
