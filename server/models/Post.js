@@ -13,6 +13,14 @@ const postSchema = new mongoose.Schema({
         type: [mongoose.Schema.ObjectId],
         ref: 'Community',
         maxLength: 5
+    },
+    likes: {
+        type: [mongoose.Schema.ObjectId],
+        ref: 'User'
+    },
+    dislikes: {
+        type: [mongoose.Schema.ObjectId],
+        ref: 'User'
     }
 });
 
