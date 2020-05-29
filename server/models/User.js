@@ -143,7 +143,7 @@ userSchema.methods.createVerifyEmailToken = function() {
             .createHash('sha256')
             .update(verifyToken)
             .digest('hex');
-    this.passwordResetExpires = Date.now() + 600000;
+    this.verifyEmailExpires = Date.now() + 600000;
     return verifyToken;
 };
 

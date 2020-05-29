@@ -13,6 +13,7 @@ router.route('/auth/signup').post(authController.signUp);
 router.route('/auth/forgotpassword').post(authController.forgotPassword);
 router.route('/auth/resetpassword/:resetToken').patch(authController.resetPassword);
 router.route('/auth/verifyemail').post(authController.verifyEmailToken);
+router.route('/auth/verifyemail/:verifyToken').patch(authController.verifyEmail);
 
 router.route('/')
     .get(userController.getUsers)

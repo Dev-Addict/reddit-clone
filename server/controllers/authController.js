@@ -239,3 +239,24 @@ exports.verifyEmailToken = catchRequest(
         });
     }
 );
+
+exports.verifyEmail = catchRequest(
+    async (req, res) => {
+        const hashedToken =
+            crypto
+                .createHash('sha256')
+                .update(req.params.verifyToken)
+                .digest('hex');
+        const user = await User.findOne({
+            verifyEmailToken: hashedToken,
+            verifyEmailExpires: { $gt: Date.now() }
+        }).select('+verifyEmailToken');
+        if (!user) {
+            throw new AppError('Token is invalid or expired.', 400);
+        }
+        user.isEmailVerified = true;
+        await user.save();
+
+        sendToken(user, 200, res);
+    }
+);
