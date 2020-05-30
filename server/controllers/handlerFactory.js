@@ -1,3 +1,4 @@
+const redisClient = require('../utils/redisClient');
 const catchRequest = require('../utils/catchRequest');
 const AppError = require('../utils/AppError');
 const APIFeatures = require('../utils/APIFeatures');
@@ -75,6 +76,10 @@ exports.getOne = (Model, populateOptions) =>
 exports.getAll = Model =>
     catchRequest(
         async (req, res) => {
+            const modelName = Model.collection.collectionName;
+
+            const cachedModels = await redisClient.get(modelName);
+
             const features =
                 new APIFeatures(Model.find(), req.query)
                     .filter()
